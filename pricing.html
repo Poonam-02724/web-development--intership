@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            padding: 40px 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 38px;
+        }
+
+        .subtitle {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .toggle-area {
+            margin-bottom: 35px;
+        }
+
+        .toggle-btn {
+            padding: 12px 25px;
+            border: none;
+            background: #0077b6;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .billing-text {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            position: relative;
+            background: white;
+            width: 300px;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 38px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #0077b6;
+        }
+
+        .price span {
+            font-size: 16px;
+            color: #777;
+        }
+
+        .features {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .features li {
+            margin: 12px 0;
+        }
+
+        .choose-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            background: #0077b6;
+            color: white;
+            cursor: pointer;
+        }
+
+        .badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #ff9800;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            h1 {
+                font-size: 30px;
+            }
+
+            .card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Simple Pricing Plans</h1>
+    <p class="subtitle">Choose the plan that works best for you.</p>
+
+    <div class="toggle-area">
+        <button class="toggle-btn" id="billingToggle">
+            Switch to Yearly
+        </button>
+        <span class="billing-text" id="billingText">Monthly Billing</span>
+    </div>
+
+    <div class="pricing-container">
+
+        <div class="card">
+            <h2>Basic</h2>
+
+            <div class="price">
+                <span class="currency">$</span>
+                <span class="amount" data-monthly="9" data-yearly="90">9</span>
+                <span>/month</span>
+            </div>
+
+            <ul class="features">
+                <li>✓ 5 Projects</li>
+                <li>✓ Basic Support</li>
+                <li>✓ 5 GB Storage</li>
+            </ul>
+
+            <button class="choose-btn">Choose Plan</button>
+        </div>
+
+
+        <div class="card">
+            <div class="badge">Popular</div>
+
+            <h2>Pro</h2>
+
+            <div class="price">
+                <span class="currency">$</span>
+                <span class="amount" data-monthly="19" data-yearly="190">19</span>
+                <span>/month</span>
+            </div>
+
+            <ul class="features">
+                <li>✓ 20 Projects</li>
+                <li>✓ Priority Support</li>
+                <li>✓ 50 GB Storage</li>
+            </ul>
+
+            <button class="choose-btn">Choose Plan</button>
+        </div>
+
+
+        <div class="card">
+            <div class="badge">Best Value</div>
+
+            <h2>Premium</h2>
+
+            <div class="price">
+                <span class="currency">$</span>
+                <span class="amount" data-monthly="39" data-yearly="390">39</span>
+                <span>/month</span>
+            </div>
+
+            <ul class="features">
+                <li>✓ Unlimited Projects</li>
+                <li>✓ 24/7 Support</li>
+                <li>✓ 200 GB Storage</li>
+            </ul>
+
+            <button class="choose-btn">Choose Plan</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    const toggleButton = document.getElementById("billingToggle");
+    const billingText = document.getElementById("billingText");
+    const amounts = document.querySelectorAll(".amount");
+
+    let yearly = false;
+
+    toggleButton.addEventListener("click", function() {
+
+        yearly = !yearly;
+
+        amounts.forEach(function(amount) {
+
+            if (yearly) {
+                amount.textContent = amount.dataset.yearly;
+            } else {
+                amount.textContent = amount.dataset.monthly;
+            }
+
+        });
+
+        if (yearly) {
+            toggleButton.textContent = "Switch to Monthly";
+            billingText.textContent = "Yearly Billing";
+        } else {
+            toggleButton.textContent = "Switch to Yearly";
+            billingText.textContent = "Monthly Billing";
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
