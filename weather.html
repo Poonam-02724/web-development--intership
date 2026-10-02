@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Weather Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #eef5ff;
+            min-height: 100vh;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        #cityInput {
+            width: 300px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        #searchBtn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #0077b6;
+            color: white;
+            cursor: pointer;
+        }
+
+        #searchBtn:hover {
+            opacity: 0.9;
+        }
+
+        #message {
+            margin: 15px;
+            color: #d62828;
+        }
+
+        .current-weather {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .temperature {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #0077b6;
+        }
+
+        .forecast {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .forecast-card {
+            background: white;
+            width: 150px;
+            padding: 20px 10px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .forecast-card h3 {
+            margin-bottom: 12px;
+        }
+
+        .forecast-card p {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 500px) {
+            .search-box {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #cityInput,
+            #searchBtn {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .forecast-card {
+                width: 140px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Live Weather Dashboard</h1>
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="cityInput"
+            placeholder="Enter city name"
+        >
+
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <p id="message"></p>
+
+    <div id="weatherResult"></div>
+
+</div>
+
+<script>
+
+    const cityInput = document.getElementById("cityInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const weatherResult = document.getElementById("weatherResult");
+    const message = document.getElementById("message");
+
+    async function getWeather() {
+
+        const city = cityInput.value.trim();
+
+        if (city === "") {
+            message.textContent = "Please enter a city name.";
+            return;
+        }
+
+        message.textContent = "Loading weather...";
+        weatherResult.innerHTML = "";
+
+        try {
+
+            // Get city coordinates
+            const geoResponse = await fetch(
+                `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+            );
+
+            const geoData = await geoResponse.json();
+
+            if (!geoData.results || geoData.results.length === 0) {
+                throw new Error("City not found.");
+            }
+
+            const location = geoData.results[0];
+
+            const latitude = location.latitude;
+            const longitude = location.longitude;
+
+            // Get weather data
+            const weatherResponse = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`
+            );
+
+            const weatherData = await weatherResponse.json();
+
+            displayWeather(location, weatherData);
+
+            message.textContent = "";
+
+        } catch (error) {
+
+            message.textContent =
+                "Unable to get weather. Please check the city name and try again.";
+
+            console.error(error);
+        }
+    }
+
+
+    function getWeatherDescription(code) {
+
+        if (code === 0) return "Clear Sky";
+        if (code <= 3) return "Partly Cloudy";
+        if (code <= 48) return "Foggy";
+        if (code <= 57) return "Drizzle";
+        if (code <= 67) return "Rain";
+        if (code <= 77) return "Snow";
+        if (code <= 82) return "Rain Showers";
+        if (code <= 86) return "Snow Showers";
+        return "Thunderstorm";
+    }
+
+
+    function displayWeather(location, data) {
+
+        const current = data.current;
+        const daily = data.daily;
+
+        let forecastHTML = "";
+
+        for (let i = 0; i < 5; i++) {
+
+            forecastHTML += `
+                <div class="forecast-card">
+                    <h3>${daily.time[i]}</h3>
+                    <p>${getWeatherDescription(daily.weather_code[i])}</p>
+                    <p>Max: ${daily.temperature_2m_max[i]}°C</p>
+                    <p>Min: ${daily.temperature_2m_min[i]}°C</p>
+                </div>
+            `;
+        }
+
+
+        weatherResult.innerHTML = `
+
+            <div class="current-weather">
+
+                <h2>
+                    ${location.name}, ${location.country}
+                </h2>
+
+                <div class="temperature">
+                    ${current.temperature_2m}°C
+                </div>
+
+                <p>
+                    ${getWeatherDescription(current.weather_code)}
+                </p>
+
+                <p>
+                    Wind Speed: ${current.wind_speed_10m} km/h
+                </p>
+
+            </div>
+
+            <h2>5-Day Forecast</h2>
+
+            <br>
+
+            <div class="forecast">
+                ${forecastHTML}
+            </div>
+        `;
+    }
+
+
+    searchBtn.addEventListener("click", getWeather);
+
+
+    cityInput.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            getWeather();
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
